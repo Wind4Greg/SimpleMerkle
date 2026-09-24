@@ -1,0 +1,15 @@
+{
+  "name": "simplemerkle",
+  "version": "1.0.0",
+  "description": "[RFC9162](https://www.rfc-editor.org/info/rfc9162/#section-2.1) Gives a basic algorithm to implement Merkle tree functionality. It includes:",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "VCExample.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@noble/hashes": "^2.4.0"
+  }
+}

@@ -1,0 +1,91 @@
+/*
+  This VC example uses previously computed canonicalized non-mandatory statements
+  along with a precomputed list of salts stored in JSON files.
+*/
+
+import { mkdir, readFile } from "fs/promises";
+import { MerkleTree, leafHash, verifyInclusion } from "./merkle.js";
+import { bytesToHex, concatBytes, hexToBytes } from "@noble/hashes/utils.js";
+import { sha256 } from "@noble/hashes/sha2.js";  //  for quick check
+const LEAF_PREFIX = 0x00;
+
+//  Recover just the nonMandatory statements in order
+const transformSD = JSON.parse(
+  await readFile(new URL("./addBaseTransform.json", import.meta.url)),
+);
+const nonMandatory = transformSD.nonMandatory.value.map(x=>x[1]);
+// console.log(nonMandatory)
+//  Recover salts and salted hashes
+const hashSD = JSON.parse(
+  await readFile(new URL("./addSaltedHashes.json", import.meta.url)),
+);
+// console.log(hashSD); // salts and  saltedHases are in hex
+
+// Create my entries from salts and nonMandatory.
+const encoder = new TextEncoder(); // Use encoder to convert to Uint8Array
+const entries = [];
+const salts  = hashSD.salts;
+console.log(`length salts: ${salts.length}, length non-mandatory: ${nonMandatory.length}`);
+for (let i = 0; i < salts.length; i++) {
+  entries.push(concatBytes(hexToBytes(salts[i]), encoder.encode(nonMandatory[i])));
+}
+// To check against salted hashes in JSON file.
+// Leaf entries are different since they get a leaf prefix.
+let saltedHashCheck = entries.map(x => sha256(x));
+// console.log(saltedHashCheck.map(x => bytesToHex(x)));
+
+
+const tree = await MerkleTree.create(entries); 
+
+console.log("Tree leaves:");
+console.log(tree.leafHashes.map(x => bytesToHex(x)));
+console.log("MTH:");
+console.log(bytesToHex(tree.root));
+
+// From the VC test vector these are the indexes we need inclusion proofs for.
+const selectiveIndexes = [0,1,8,13,14,15];
+let proofs = [];
+let proofsHex = [];
+for (let index of selectiveIndexes) {
+  let { leafIndex, treeSize, inclusionPath } = await tree.inclusionProof(index);
+  proofs.push(inclusionPath);
+  proofsHex.push(inclusionPath.map(x => bytesToHex(x)));
+  console.log(`index:  ${index}, leafIndex: ${leafIndex}, treeSize: ${treeSize}`);
+}
+console.log(proofsHex);
+
+// Now verify the selected entries
+// async function verifyInclusion(leaf, leafIndex, treeSize, inclusionPath, rootHash)
+let  treeSize = nonMandatory.length;
+let  rootHash = tree.root;
+let  proofTotal = 0; // let's see how many hashes in proof
+for (let i = 0; i < selectiveIndexes.length; i++) {
+  let index = selectiveIndexes[i];
+  let leaf = await leafHash(concatBytes(hexToBytes(salts[index]), encoder.encode(nonMandatory[index])));
+  let okay = await verifyInclusion(leaf, index, treeSize, proofs[i], rootHash)
+  proofTotal  += proofs[i].length;
+  console.log(`index:  ${index}, verified: ${okay}`);
+}
+console.log(`Total proof entries: ${proofTotal}`);
+
+// Try de-duplicating the values
+let valueMap = new Map();
+let n = 0;
+for (let proof of proofs) {
+  for (let hashThing of proof) {
+    if (!valueMap.has(bytesToHex(hashThing))) {
+      valueMap.set(bytesToHex(hashThing), n);
+      n++;
+    }
+  }
+}
+console.log(valueMap);
+// Look at reduced proofs
+let reducedProofs = [];
+for (let hexProof of proofsHex) {
+  reducedProofs.push(hexProof.map(x => valueMap.get(x)));
+}
+console.log(reducedProofs);
+
+
+
