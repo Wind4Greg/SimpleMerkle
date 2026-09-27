@@ -4,7 +4,7 @@
 */
 
 import { mkdir, readFile } from "fs/promises";
-import { MerkleTree, leafHash, verifyInclusion } from "./merkle.js";
+import { MerkleTree, leafHash, verifyInclusion, instrument } from "./merkleInstr.js";
 import { bytesToHex, concatBytes, hexToBytes } from "@noble/hashes/utils.js";
 import { sha256 } from "@noble/hashes/sha2.js";  //  for quick check
 const LEAF_PREFIX = 0x00;
@@ -19,13 +19,13 @@ const nonMandatory = transformSD.nonMandatory.value.map(x=>x[1]);
 const hashSD = JSON.parse(
   await readFile(new URL("./addSaltedHashes.json", import.meta.url)),
 );
-// console.log(hashSD); // salts and  saltedHases are in hex
+// console.log(hashSD); // salts and saltedHases are in hex
 
 // Create my entries from salts and nonMandatory.
 const encoder = new TextEncoder(); // Use encoder to convert to Uint8Array
 const entries = [];
 const salts  = hashSD.salts;
-console.log(`length salts: ${salts.length}, length non-mandatory: ${nonMandatory.length}`);
+// console.log(`length salts: ${salts.length}, length non-mandatory: ${nonMandatory.length}`);
 for (let i = 0; i < salts.length; i++) {
   entries.push(concatBytes(hexToBytes(salts[i]), encoder.encode(nonMandatory[i])));
 }
@@ -34,16 +34,19 @@ for (let i = 0; i < salts.length; i++) {
 let saltedHashCheck = entries.map(x => sha256(x));
 // console.log(saltedHashCheck.map(x => bytesToHex(x)));
 
+instrument.subtreeHash = true;
+const tree = await MerkleTree.create(entries); // Can try a smaller tree with a slice of entries.
+instrument.subtreeHash = false;
 
-const tree = await MerkleTree.create(entries); 
-
-console.log("Tree leaves:");
-console.log(tree.leafHashes.map(x => bytesToHex(x)));
+// console.log("Tree leaves:");
+// console.log(tree.leafHashes.map(x => bytesToHex(x)));
 console.log("MTH:");
 console.log(bytesToHex(tree.root));
 
 // From the VC test vector these are the indexes we need inclusion proofs for.
-const selectiveIndexes = [0,1,8,13,14,15];
+// const selectiveIndexes = [0,1,8,13,14,15]; // From the test vector
+// const selectiveIndexes = [0,1, 2, 3,4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]; // To see how big.
+const selectiveIndexes = [6]; // To try tracing a path
 let proofs = [];
 let proofsHex = [];
 for (let index of selectiveIndexes) {

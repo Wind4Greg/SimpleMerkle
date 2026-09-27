@@ -1,0 +1,52 @@
+digraph G {
+
+
+
+
+N_0_2 -> Leaf0
+N_0_2 -> Leaf1
+N_2_4 -> Leaf2
+N_2_4 -> Leaf3
+N_0_4 -> N_0_2
+N_0_4 -> N_2_4
+N_4_6 -> Leaf4
+N_4_6 -> Leaf5
+N_6_8 -> Leaf6
+N_6_8 -> Leaf7
+N_4_8 -> N_4_6
+N_4_8 -> N_6_8
+N_0_8 -> N_0_4
+N_0_8 -> N_4_8
+N_8_10 -> Leaf8
+N_8_10 -> Leaf9
+N_10_12 -> Leaf10
+N_10_12 -> Leaf11
+N_8_12 -> N_8_10
+N_8_12 -> N_10_12
+N_12_14 -> Leaf12
+N_12_14 -> Leaf13
+N_14_16 -> Leaf14
+N_14_16 -> Leaf15
+N_12_16 -> N_12_14
+N_12_16 -> N_14_16
+N_8_16 -> N_8_12
+N_8_16 -> N_12_16
+N_0_16 -> N_0_8
+N_0_16 -> N_8_16
+N_16_18 -> Leaf16
+N_16_18 -> Leaf17
+N_18_20 -> Leaf18
+N_18_20 -> Leaf19
+N_16_20 -> N_16_18
+N_16_20 -> N_18_20
+N_0_20 -> N_0_16
+N_0_20 -> N_16_20
+
+N_16_20[fillcolor="blue", style=filled]
+N_8_16[fillcolor="blue", style=filled]
+N_0_4[fillcolor="blue", style=filled]
+N_4_6[fillcolor="blue", style=filled]
+Leaf7[fillcolor="blue", style=filled]
+
+Leaf6[color="red",style=filled]
+}
