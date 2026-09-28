@@ -10,6 +10,22 @@ Items to note:
 4. Verification of proofs are **not** done recursively. It is done by starting with the given leaf hash then combining with the hashes in the inclusion proof. The tree size and the leaf index control the order (left, right) of how the node hashes are computed up the tree towards the root.
 5. There is no need to verify leaves individually. For example full disclosure of all the leaves allows a check without sending any extra proof information, just recompute the hash corresponding to the tree root node.
 
+## Batch Inclusion Proof and Verification
+
+By "batch" inclusion proof I mean I'd like some kind of "proof" that covers multiple leaves at the same time. The essence is that we need sufficient information to recompute the root hash from the given leaf hashes but no more. Intuitively, all leaf hashes to be validated must be "rolled into" the root hash and not overshadowed by an upper level given node hash. Below is an example of the additional nodes shown in blue to verify the given leaf hashes shown in red.
+
+![Batch Proof L6 and L19](./batch6_19.svg)
+
+The two separate inclusion proofs for leaves 6 and 19 would have had lengths 5 and 4 respectively. While from the diagram we can see a total of 6 additional nodes of information rather than 9.
+
+Another thing we can see that each "blue node" (proof node) is either a necessary leaf (a partner to the one being proven) or is a "stand-in" for a range of non-revealed leaves.
+
+Hmm, all this structure is determined by the tree size and the indexes of the leaves to be proven.
+
+Another example of "batch proof" for leaves 8 and 9. In this case instead of two proofs of length 5 we have a single "batch proof" of length 4.
+
+![Batch Proof L8 and L9](./batch8_9.svg)
+
 ## Example Tree of 20 Leaves
 
 This is extracted from an VC example that has 20 non-mandatory statements.

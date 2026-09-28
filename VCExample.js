@@ -46,16 +46,18 @@ console.log(bytesToHex(tree.root));
 // From the VC test vector these are the indexes we need inclusion proofs for.
 // const selectiveIndexes = [0,1,8,13,14,15]; // From the test vector
 // const selectiveIndexes = [0,1, 2, 3,4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]; // To see how big.
-const selectiveIndexes = [6]; // To try tracing a path
+const selectiveIndexes = [8, 9]; // To try tracing a path
 let proofs = [];
 let proofsHex = [];
 for (let index of selectiveIndexes) {
+  console.log(`Inclusion proof for Leaf ${index}`);
+  console.log(`Leaf${index}[fillcolor="red", style=filled]`)
   let { leafIndex, treeSize, inclusionPath } = await tree.inclusionProof(index);
   proofs.push(inclusionPath);
   proofsHex.push(inclusionPath.map(x => bytesToHex(x)));
-  console.log(`index:  ${index}, leafIndex: ${leafIndex}, treeSize: ${treeSize}`);
+  // console.log(`index:  ${index}, leafIndex: ${leafIndex}, treeSize: ${treeSize}`);
 }
-console.log(proofsHex);
+// console.log(proofsHex);
 
 // Now verify the selected entries
 // async function verifyInclusion(leaf, leafIndex, treeSize, inclusionPath, rootHash)
@@ -82,13 +84,13 @@ for (let proof of proofs) {
     }
   }
 }
-console.log(valueMap);
+// console.log(valueMap);
 // Look at reduced proofs
 let reducedProofs = [];
 for (let hexProof of proofsHex) {
   reducedProofs.push(hexProof.map(x => valueMap.get(x)));
 }
-console.log(reducedProofs);
+// console.log(reducedProofs);
 
 
 

@@ -42,15 +42,17 @@ N_16_20 -> N_18_20
 N_0_20 -> N_0_16
 N_0_20 -> N_16_20
 
-Leaf6[color="red",style=filled]
-// N_16_20[fillcolor="blue", style=filled]
-N_8_16[fillcolor="blue", style=filled]
-N_0_4[fillcolor="blue", style=filled]
-N_4_6[fillcolor="blue", style=filled]
-Leaf7[fillcolor="blue", style=filled]
+Leaf8[fillcolor="red", style=filled]
+N_16_20[fillcolor="blue", style=filled]
+N_0_8[fillcolor="blue", style=filled]
+N_12_16[fillcolor="blue", style=filled]
+N_10_12[fillcolor="blue", style=filled]
+// Leaf9[fillcolor="blue", style=filled]
 
-Leaf19[fillcolor="red", style=filled]
-// N_0_16[fillcolor="blue", style=filled]
-N_16_18[fillcolor="blue", style=filled]
-Leaf18[fillcolor="blue", style=filled]
+Leaf9[fillcolor="red", style=filled]
+N_16_20[fillcolor="blue", style=filled]
+N_0_8[fillcolor="blue", style=filled]
+N_12_16[fillcolor="blue", style=filled]
+N_10_12[fillcolor="blue", style=filled]
+// Leaf8[fillcolor="blue", style=filled]
 }
