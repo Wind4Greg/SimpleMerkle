@@ -98,3 +98,22 @@ N_4_6
 Leaf7
 
 ![Visualized inclusion proof](./inclusion6.svg)
+
+## Algorithms for Multi-Proofs?
+
+From Devin (@studyzy) on GitHub:
+
+```
+If the batch is aggregated into a single minimal proof instead (known in the literature as a Merkle multi-proof or batch proof), the redundancy goes away.
+
+The aggregation rule is a small recursion over the set of disclosed leaf indices:
+
+1. All leaves under this node are disclosed → emit nothing (the verifier rebuilds this node from the disclosed leaves).
+2. No leaf under this node is disclosed → emit this node's hash (1 value).
+3. Mixed → recurse into both children and union the results.
+
+The derived proof carries the union of emitted hashes plus the disclosed statements; the verifier reconstructs the root with the same MTH procedure as RFC 9162, skipping subtrees it can rebuild.
+```
+
+Now for a reasonable algorithm to implement this.
+
