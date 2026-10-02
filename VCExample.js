@@ -35,7 +35,7 @@ let saltedHashCheck = entries.map(x => sha256(x));
 // console.log(saltedHashCheck.map(x => bytesToHex(x)));
 
 instrument.subtreeHash = true;
-const tree = await MerkleTree.create(entries); // Can try a smaller tree with a slice of entries.
+const tree = await MerkleTree.create(entries.slice(0,10)); // Can try a smaller tree with a slice of entries.
 instrument.subtreeHash = false;
 
 // console.log("Tree leaves:");
@@ -46,7 +46,7 @@ console.log(bytesToHex(tree.root));
 // From the VC test vector these are the indexes we need inclusion proofs for.
 // const selectiveIndexes = [0,1,8,13,14,15]; // From the test vector
 // const selectiveIndexes = [0,1, 2, 3,4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]; // To see how big.
-const selectiveIndexes = [8, 9]; // To try tracing a path
+const selectiveIndexes = [2, 5]; // To try tracing a path
 let proofs = [];
 let proofsHex = [];
 for (let index of selectiveIndexes) {
@@ -93,4 +93,4 @@ for (let hexProof of proofsHex) {
 // console.log(reducedProofs);
 
 
-
+console.log(tree);

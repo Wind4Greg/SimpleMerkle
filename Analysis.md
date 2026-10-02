@@ -115,5 +115,30 @@ The aggregation rule is a small recursion over the set of disclosed leaf indices
 The derived proof carries the union of emitted hashes plus the disclosed statements; the verifier reconstructs the root with the same MTH procedure as RFC 9162, skipping subtrees it can rebuild.
 ```
 
-Now for a reasonable algorithm to implement this.
+Now for an actual algorithm to implement this.
+
+The `tree` from the original code includes the root (hash value), an array of leaf hashes, but not the intermediate nodes and their hashes or the explicit tree structure. So I'm adding a `fullTree` structure that looks something like this (n = 10 case).
+
+```javascript
+fullTree: {
+  N_0_2: TreeNode { value: [Uint8Array], left: 'Leaf0', right: 'Leaf1' },
+  N_2_4: TreeNode { value: [Uint8Array], left: 'Leaf2', right: 'Leaf3' },
+  N_0_4: TreeNode { value: [Uint8Array], left: 'N_0_2', right: 'N_2_4' },
+  N_4_6: TreeNode { value: [Uint8Array], left: 'Leaf4', right: 'Leaf5' },
+  N_6_8: TreeNode { value: [Uint8Array], left: 'Leaf6', right: 'Leaf7' },
+  N_4_8: TreeNode { value: [Uint8Array], left: 'N_4_6', right: 'N_6_8' },
+  N_0_8: TreeNode { value: [Uint8Array], left: 'N_0_4', right: 'N_4_8' },
+  N_8_10: TreeNode { value: [Uint8Array], left: 'Leaf8', right: 'Leaf9' },
+  rootName: 'N_0_10',
+  N_0_10: TreeNode { value: [Uint8Array], left: 'N_0_8', right: 'N_8_10' }
+}
+  ```
+
+For reminder of tree traversal see [Wikipedia: Tree Traversal](https://en.wikipedia.org/wiki/Tree_traversal). Pre-order traversal results in leaves (our list entries) in order. Did a simple recursive multi-proof algorithm based on the above.
+
+Example results for  [0, 1, 7] selected:
+
+![Multi-proof for (0, 1, 7)](./batch0_1_7.svg)
+
+
 

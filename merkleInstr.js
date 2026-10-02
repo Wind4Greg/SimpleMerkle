@@ -47,37 +47,57 @@ export async function nodeHash(left, right) {
   return sha256(concat(Uint8Array.of(NODE_PREFIX), left, right));
 }
 
+class TreeNode {
+  constructor(value, left, right) {
+    this.value = value;
+    this.left = left;
+    this.right = right;
+  }
+  
+}
+
 // MTH over a slice of precomputed leaf hashes [start, end).
-async function subtreeHash(leafHashes, start, end) {
+async function subtreeHash(leafHashes, start, end, fullTree) {
   const n = end - start;
   if (n === 0) return sha256(new Uint8Array(0)); // MTH({}) = HASH()
   if (n === 1) return leafHashes[start];
   const k = splitPoint(n);
   const value = nodeHash(
-    await subtreeHash(leafHashes, start, start + k),
-    await subtreeHash(leafHashes, start + k, end)
+    await subtreeHash(leafHashes, start, start + k, fullTree),
+    await subtreeHash(leafHashes, start + k, end, fullTree)
   );
+  // Full tree creation
+  let  nodeName;
+  let lChild = null;
+  let rChild = null;
+  nodeName = `N_${start}_${end}`;
+  if (k > 1) {
+    lChild = `N_${start}_${start+k}`;
+  } else {
+    lChild = `Leaf${start}`;
+  }
+  if ((end - (start + k)) > 1) {
+    rChild = `N_${start+k}_${end}`;
+  } else {
+    rChild = `Leaf${start+k}`
+  }
+  let isRoot = (start ==  0) && (end  == leafHashes.length);
+  if (isRoot) {
+    fullTree.rootName = nodeName;
+  }
+  let treeNode = new TreeNode(await value, lChild, rChild);
+  if (fullTree) {
+    fullTree[nodeName] = treeNode;
+  };
   // Instrumentation
   if (instrument.subtreeHash) {
-    let  node, lChild, rChild;
-    node = `N_${start}_${end}`;
-    if (k > 1) {
-      lChild = `N_${start}_${start+k}`;
-    } else {
-      lChild = `Leaf${start}`;
-    }
 
-    if ((end - (start + k)) > 1) {
-      rChild = `N_${start+k}_${end}`;
-    } else {
-      rChild = `Leaf${start+k}`
-    }
     if (instrument.graphViz) {
-      console.log(`${node} -> ${lChild}`);
-      console.log(`${node} -> ${rChild}`);
+      console.log(`${nodeName} -> ${lChild}`);
+      console.log(`${nodeName} -> ${rChild}`);
 
     } else {
-      console.log(`${node}:${bytesToHex(await value).slice(0,4)}, lChild: ${lChild}, rChild: ${rChild}`);
+      console.log(`${nodeName}:${bytesToHex(await value).slice(0,4)}, lChild: ${lChild}, rChild: ${rChild}`);
     }
     
   }
@@ -123,8 +143,9 @@ export class MerkleTree {
   /** @param {Uint8Array[]} entries */
   static async create(entries) {
     const tree = new MerkleTree();
+    tree.fullTree = {}; // To store full tree
     tree.leafHashes = await Promise.all(entries.map(leafHash));
-    tree.root = await subtreeHash(tree.leafHashes, 0, tree.leafHashes.length);
+    tree.root = await subtreeHash(tree.leafHashes, 0, tree.leafHashes.length, tree.fullTree);
     return tree;
   }
 
