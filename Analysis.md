@@ -136,9 +136,31 @@ fullTree: {
 
 For reminder of tree traversal see [Wikipedia: Tree Traversal](https://en.wikipedia.org/wiki/Tree_traversal). Pre-order traversal results in leaves (our list entries) in order. Did a simple recursive multi-proof algorithm based on the above.
 
-Example results for  [0, 1, 7] selected:
+Example results for [0, 1, 7] selected, produces a multi-proof array [ 'N_2_4', 'N_4_6', 'Leaf6', 'N_8_16', 'N_16_20' ].
 
 ![Multi-proof for (0, 1, 7)](./batch0_1_7.svg)
 
+Now, how to put the proof array back together with the selected values to recompute the root hash and check it against the signed version?
 
+We want to generalize `function verifyInclusion(leaf, leafIndex, treeSize, inclusionPath, rootHash)` to something like `function verifyMultiInclusion(leaves, leafIndexes, treeSize, inclusionMulti, rootHash)`
 
+A straightforward approach would be:
+
+1. Re-create the empty tree based on the `treeSize`.
+2. Based on the `selectedIndexes` (the given leafIndexes) create the multi-proof array like above that contains "symbolic" names for the tree nodes.
+3. Assign values to the tree nodes based on the values in the given multi-proof and the symbolic  multi-proof and the given indexes.
+4. Compute the root has from the populated binary tree and check it.
+
+# VC Selective Disclosure Algorithms/Approach
+
+* Issuer
+  1. Generates salts from secret key and DRBG, salts and hashes all non-mandatory statements (result is an ordered list)
+  2. Computes Merkle tree but only needs the root value, which it then signs.
+  3. Sends VC with base proof that includes mandatory pointers, hmac_key, and salt_key  (plus other SHoC stuff).
+* Holder
+  1. Regenerates entire Merkle tree from salts and non-mandatory statement list.
+  2. Based on selected indexes and above Merkle tree, creates a "Merkle inclusion multi-proof"
+  3. Sends the "multi-proof", filtered salts, and selectedIndexes (plus other SHoC approach stuff), as well as the total number of non-mandatory statements = treeSize (needed for verifier to reconstruct the tree).
+* Verifier
+  1. Using the sent (filtered) salts and recovered non-mandatory (selected) statements computes the salted hashes for these "selected" leaves of the Merkle tree.
+  2. Using tree size, selectiveIndexes, selected leaf hashes, and  multi-proof verify against the signed Merkle root node.
