@@ -9,13 +9,6 @@ import { sha256 } from "@noble/hashes/sha2.js";
 const LEAF_PREFIX = 0x00;
 const NODE_PREFIX = 0x01;
 
-function bytesEqual(a, b) {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
-  return diff === 0;
-}
-
 // Largest power of two strictly smaller than n (n > 1), i.e. k < n <= 2k.
 function splitPoint(n) {
   let k = 1;
