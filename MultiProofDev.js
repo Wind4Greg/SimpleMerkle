@@ -68,5 +68,5 @@ let selectedLeaves = entries.filter((value, index) => selected.includes(index));
 // console.log(entries);
 // console.log(selectedLeaves);
 let calcRoot = verifyMultiProof(treeSize, selected, selectedLeaves, inclusionProofValues);
-console.log(`rootHash: ${bytesToHex(tree.root)}`);
+console.log(`rootHash: ${bytesToHex(tree.mth)}`);
 console.log(`recomputed roothash:  ${bytesToHex(calcRoot)}`);

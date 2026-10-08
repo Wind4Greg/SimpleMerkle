@@ -42,7 +42,8 @@ class TreeNode {
   
 }
 
-// MTH over a slice of precomputed leaf hashes [start, end).
+// Recursively creates the Merkle tree and computes node hashes
+// as it goes.
 function subtreeHash(leafHashes, start, end, fullTree) {
   const n = end - start;
   if (n === 0) return sha256(new Uint8Array(0)); // MTH({}) = HASH()
@@ -78,6 +79,8 @@ function subtreeHash(leafHashes, start, end, fullTree) {
   return value;
 }
 
+// Recursively creates the structure for Merkle tree for a list of a
+// given length. Used in verifying subtree proofs.
 function subtreeEmpty(treeSize, start, end, fullTree) {
   const n = end - start;
   if (n === 0) return;
@@ -118,7 +121,7 @@ export class MerkleTree {
     if (entries) {
     this.fullTree = {}; // To store full tree
     this.leafHashes = entries.map(leafHash);
-    this.root = subtreeHash(this.leafHashes, 0, this.leafHashes.length, this.fullTree);
+    this.mth = subtreeHash(this.leafHashes, 0, this.leafHashes.length, this.fullTree);
     }
   }
 
@@ -153,7 +156,6 @@ export class MerkleTree {
   }
 }
 
-
 // Gives an ordered list of leaves under a given node Name.
 function preOrderLeaves(nodeName, tree) {
   // console.log(nodeName);
@@ -184,7 +186,7 @@ function noLeavesSelected(nodeName, selected, tree)  {
   return !someSelected;
 }
 
-
+// Recursive function used to create the multi-proof (subtree proof)
 function multiProof(nodeName, selected, tree) {
   // console.log(`node name:  ${nodeName}`);
   if (allLeavesSelected(nodeName, selected, tree)) {
@@ -227,6 +229,7 @@ export function verifyMultiProof(treeSize, selectedIndexes, selectedLeaves, mult
   return rootHash;
 }
 
+// Recursive function used to compute the hash of a populated tree.
 function treeHash(nodeName, tree) {
   if (nodeName.includes('Leaf')) {
     let leafNum = parseInt(nodeName.slice(4));
