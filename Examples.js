@@ -48,7 +48,7 @@ badSelectedLeaves[0] = badStuff; // Replace real value with bad stuff
 calcRoot = verifyMultiProof(treeSize, selected, badSelectedLeaves, inclusionProofValues);
 console.log(`Bad stuff verified: ${isEqualArray(calcRoot, tree.mth)}`);
 
-let fname = `./output/merkle${tree.size}mp${selected.join('_')}`;
+let fname = `./output/merkle${tree.size}mp${selected.join('_')}.dot`;
 
 let graphVizString = createGraphViz(tree.fullTree, selected, inclusionProof);
 await writeFile(fname, graphVizString);
